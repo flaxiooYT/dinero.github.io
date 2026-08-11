@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WalletX</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#131C19" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="WalletX" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #131C19;
+    --card: #1C2825;
+    --card-alt: #202E2A;
+    --border: #2E3B37;
+    --text: #F1EDE3;
+    --muted: #93A19B;
+    --income: #5FD6A0;
+    --expense: #F0876A;
+    --header: #0D1614;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding-bottom: 3rem;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 1.5rem 1.25rem 0; }
+
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 360px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem 1.5rem;
+  }
+  .auth-logo { font-size: 34px; text-align: center; margin-bottom: 0.25rem; }
+  .auth-title {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 1.25rem;
+  }
+  .auth-sub {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin: -0.75rem 0 1.25rem;
+  }
+
+  .header {
+    background: var(--header);
+    border-radius: 10px 10px 0 0;
+    padding: 1.5rem 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin: 0;
+  }
+  .balance {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    font-weight: 600;
+    margin: 0.25rem 0 0.75rem;
+  }
+  .balance.pos { color: var(--income); }
+  .balance.neg { color: var(--expense); }
+  .totals {
+    display: flex;
+    gap: 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .totals span { display: flex; align-items: center; gap: 6px; }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .logout-btn:hover { color: var(--expense); border-color: var(--expense); }
+
+  .zigzag {
+    height: 14px;
+    background:
+      linear-gradient(135deg, var(--bg) 50%, transparent 50%),
+      linear-gradient(-135deg, var(--bg) 50%, transparent 50%);
+    background-size: 16px 28px;
+    background-position: top;
+    background-color: var(--header);
+    background-repeat: repeat-x;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .type-toggle { display: flex; gap: 8px; margin-bottom: 10px; }
+  .type-btn {
+    flex: 1;
+    padding: 0.55rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: capitalize;
+  }
+  .type-btn.active.gasto { background: var(--expense); border-color: var(--expense); color: #1A100C; }
+  .type-btn.active.ingreso { background: var(--income); border-color: var(--income); color: #0C1A14; }
+
+  select, input {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-alt);
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-family: inherit;
+  }
+  select:focus, input:focus, button:focus-visible {
+    outline: 2px solid var(--income);
+    outline-offset: 1px;
+  }
+  .row { display: flex; gap: 8px; }
+  .row input:first-child { width: 45%; font-family: 'IBM Plex Mono', monospace; }
+  .row input:last-child { width: 55%; }
+
+  .error { color: var(--expense); font-size: 12px; margin: 0 0 8px; }
+
+  .add-btn {
+    width: 100%;
+    padding: 0.65rem;
+    border-radius: 8px;
+    border: none;
+    background: var(--income);
+    color: #0C1A14;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .add-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .bar-icon { font-size: 15px; width: 20px; flex-shrink: 0; text-align: center; }
+  .bar-label { font-size: 12px; width: 118px; flex-shrink: 0; }
+  .bar-track { flex: 1; background: var(--card-alt); border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 8px; border-radius: 4px; }
+  .bar-amount { font-size: 12px; font-family: 'IBM Plex Mono', monospace; width: 64px; text-align: right; flex-shrink: 0; }
+
+  .empty { font-size: 13px; color: var(--muted); font-style: italic; }
+
+  .tx-list { display: flex; flex-direction: column; gap: 6px; }
+  .tx {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+  }
+  .tx-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-title { margin: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-sub { margin: 0; font-size: 11px; color: var(--muted); }
+  .tx-amount { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .tx-amount.ingreso { color: var(--income); }
+  .tx-amount.gasto { color: var(--expense); }
+  .tx-del {
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--muted); flex-shrink: 0; font-size: 15px; line-height: 1;
+  }
+  .tx-del:hover { color: var(--expense); }
+</style>
+</head>
+<body>
+
+<!-- ---------- PANTALLA DE ACCESO (obligatoria) ---------- -->
+<div id="authScreen" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">💰</div>
+    <p class="auth-title">WalletX</p>
+    <p class="auth-sub">Inicia sesión para ver tus ahorros</p>
+
+    <div class="type-toggle" id="authTabs">
+      <button class="type-btn active ingreso" id="tabLogin" data-tab="login">Iniciar sesión</button>
+      <button class="type-btn" id="tabRegister" data-tab="register">Crear cuenta</button>
+    </div>
+
+    <input type="email" id="authEmail" placeholder="Correo electrónico" autocomplete="email" />
+    <input type="password" id="authPassword" placeholder="Contraseña" autocomplete="current-password" />
+
+    <p class="error" id="authError" style="display:none;"></p>
+
+    <button class="add-btn" id="authSubmit">Entrar</button>
+  </div>
+</div>
+
+<!-- ---------- APP (solo visible logueado) ---------- -->
+<div id="appScreen" class="wrap" style="display:none;">
+  <div class="header">
+    <div>
+      <p class="eyebrow">WalletX · Balance total</p>
+      <p class="balance" id="balance">0,00 €</p>
+      <div class="totals">
+        <span>📈 <span id="totalIngresos">0,00 €</span></span>
+        <span>📉 <span id="totalGastos">0,00 €</span></span>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+  <div class="zigzag"></div>
+
+  <div class="card">
+    <div class="type-toggle">
+      <button class="type-btn active gasto" id="btnGasto" data-type="gasto">Gasto</button>
+      <button class="type-btn ingreso" id="btnIngreso" data-type="ingreso">Ingreso</button>
+    </div>
+
+    <select id="category"></select>
+
+    <div class="row">
+      <input type="text" inputmode="decimal" id="amount" placeholder="Importe (€)" />
+      <input type="date" id="date" />
+    </div>
+
+    <input type="text" id="desc" placeholder="Nota (opcional)" />
+
+    <p class="error" id="error" style="display:none;"></p>
+
+    <button class="add-btn" id="addBtn">➕ Añadir movimiento</button>
+  </div>
+
+  <div id="breakdownWrap" class="card" style="display:none;">
+    <p class="section-label">Gastos por categoría</p>
+    <div id="breakdown"></div>
+  </div>
+
+  <p class="section-label">Movimientos</p>
+  <div id="listWrap">
+    <p class="empty" id="emptyMsg">Todavía no hay movimientos. Añade el primero arriba.</p>
+    <div class="tx-list" id="txList"></div>
+  </div>
+</div>
+
+<!-- SDK de Firebase (compat, para poder usar firebase.auth() / firebase.firestore() con script normal) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<!-- Configuración de tu proyecto Firebase -->
+<script src="firebase-config.js"></script>
+
+<script>
+  const CATEGORIES = [
+    { id: "comida", label: "Comida", type: "gasto", icon: "🍽️", color: "#F0876A" },
+    { id: "salidas", label: "Salidas con amigos", type: "gasto", icon: "🎉", color: "#E0A85C" },
+    { id: "juegos", label: "Juegos", type: "gasto", icon: "🎮", color: "#B39BE8" },
+    { id: "transporte", label: "Transporte", type: "gasto", icon: "🚌", color: "#6FB1E8" },
+    { id: "salud", label: "Salud", type: "gasto", icon: "💊", color: "#E88AAE" },
+    { id: "suscripciones", label: "Suscripciones", type: "gasto", icon: "📱", color: "#7FC2BA" },
+    { id: "compras", label: "Compras / Ropa", type: "gasto", icon: "🛍️", color: "#E296C4" },
+    { id: "viajes", label: "Viajes", type: "gasto", icon: "✈️", color: "#8FBCE8" },
+    { id: "otros-gasto", label: "Otros gastos", type: "gasto", icon: "🔻", color: "#AFA89B" },
+    { id: "regalo-cumple", label: "Regalos de cumpleaños", type: "ingreso", icon: "🎂", color: "#7FE6BC" },
+    { id: "dinero-regalado", label: "Dinero regalado", type: "ingreso", icon: "🎁", color: "#5FD6A0" },
+    { id: "paga-clase", label: "Paga por trabajos en clase", type: "ingreso", icon: "📚", color: "#4CC28E" },
+  ];
+
+  const catById = (id) => CATEGORIES.find((c) => c.id === id);
+  const money = (n) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(n);
+  const today = () => new Date().toISOString().slice(0, 10);
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const $ = (id) => document.getElementById(id);
+
+  let transactions = [];
+  let currentType = "gasto";
+  let currentUser = null;
+  let unsubscribeSnapshot = null;
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  /* ---------------- AUTENTICACIÓN ---------------- */
+  let authMode = "login";
+
+  function setAuthTab(mode) {
+    authMode = mode;
+    $("tabLogin").classList.toggle("active", mode === "login");
+    $("tabRegister").classList.toggle("active", mode === "register");
+    $("authSubmit").textContent = mode === "login" ? "Entrar" : "Crear cuenta";
+    $("authError").style.display = "none";
+  }
+
+  function traducirErrorAuth(code) {
+    const map = {
+      "auth/email-already-in-use": "Ese correo ya tiene una cuenta creada.",
+      "auth/invalid-email": "El correo no es válido.",
+      "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+      "auth/user-not-found": "No existe ninguna cuenta con ese correo.",
+      "auth/wrong-password": "Contraseña incorrecta.",
+      "auth/invalid-credential": "Correo o contraseña incorrectos.",
+      "auth/missing-password": "Escribe tu contraseña.",
+      "auth/network-request-failed": "Sin conexión. Revisa tu internet.",
+    };
+    return map[code] || "Ha ocurrido un error. Inténtalo de nuevo.";
+  }
+
+  async function handleAuthSubmit() {
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+    const errEl = $("authError");
+    errEl.style.display = "none";
+
+    if (!email || !password) {
+      errEl.textContent = "Rellena correo y contraseña";
+      errEl.style.display = "block";
+      return;
+    }
+
+    const btn = $("authSubmit");
+    btn.disabled = true;
+    try {
+      if (authMode === "login") {
+        await auth.signInWithEmailAndPassword(email, password);
+      } else {
+        await auth.createUserWithEmailAndPassword(email, password);
+      }
+    } catch (e) {
+      errEl.textContent = traducirErrorAuth(e.code);
+      errEl.style.display = "block";
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  auth.onAuthStateChanged((user) => {
+    currentUser = user;
+    if (user) {
+      $("authScreen").style.display = "none";
+      $("appScreen").style.display = "block";
+      $("authEmail").value = "";
+      $("authPassword").value = "";
+      escucharDatos(user.uid);
+    } else {
+      if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+      transactions = [];
+      $("appScreen").style.display = "none";
+      $("authScreen").style.display = "flex";
+    }
+  });
+
+  $("tabLogin").addEventListener("click", () => setAuthTab("login"));
+  $("tabRegister").addEventListener("click", () => setAuthTab("register"));
+  $("authSubmit").addEventListener("click", handleAuthSubmit);
+  $("authPassword").addEventListener("keydown", (e) => { if (e.key === "Enter") handleAuthSubmit(); });
+  $("logoutBtn").addEventListener("click", () => auth.signOut());
+
+  /* ---------------- DATOS EN FIRESTORE ---------------- */
+  function escucharDatos(userId) {
+    if (unsubscribeSnapshot) unsubscribeSnapshot();
+    unsubscribeSnapshot = db.collection("walletx_users").doc(userId)
+      .onSnapshot((doc) => {
+        transactions = (doc.exists && doc.data().transactions) || [];
+        render();
+      }, (err) => {
+        console.error("Error leyendo datos", err);
+      });
+  }
+
+  function guardarDatos() {
+    if (!currentUser) return;
+    db.collection("walletx_users").doc(currentUser.uid)
+      .set({ transactions }, { merge: true })
+      .catch((e) => console.error("No se pudo guardar", e));
+  }
+
+  /* ---------------- CATEGORÍAS Y FORMULARIO ---------------- */
+  function populateCategories() {
+    const sel = $("category");
+    sel.innerHTML = "";
+    CATEGORIES.filter((c) => c.type === currentType).forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = `${c.icon}  ${c.label}`;
+      sel.appendChild(opt);
+    });
+  }
+
+  function setType(type) {
+    currentType = type;
+    $("btnGasto").classList.toggle("active", type === "gasto");
+    $("btnIngreso").classList.toggle("active", type === "ingreso");
+    populateCategories();
+  }
+
+  function addTransaction() {
+    const raw = $("amount").value.replace(",", ".");
+    const n = parseFloat(raw);
+    const errEl = $("error");
+    if (!raw || isNaN(n) || n <= 0) {
+      errEl.textContent = "Introduce un importe válido";
+      errEl.style.display = "block";
+      return;
+    }
+    errEl.style.display = "none";
+    transactions.unshift({
+      id: uid(),
+      type: currentType,
+      category: $("category").value,
+      amount: n,
+      desc: $("desc").value.trim(),
+      date: $("date").value || today(),
+    });
+    $("amount").value = "";
+    $("desc").value = "";
+    render();
+    guardarDatos();
+  }
+
+  function removeTransaction(id) {
+    transactions = transactions.filter((t) => t.id !== id);
+    render();
+    guardarDatos();
+  }
+
+  function render() {
+    const ingresos = transactions.filter((t) => t.type === "ingreso").reduce((s, t) => s + t.amount, 0);
+    const gastos = transactions.filter((t) => t.type === "gasto").reduce((s, t) => s + t.amount, 0);
+    const balance = ingresos - gastos;
+
+    const balEl = $("balance");
+    balEl.textContent = money(balance);
+    balEl.className = "balance " + (balance >= 0 ? "pos" : "neg");
+    $("totalIngresos").textContent = money(ingresos);
+    $("totalGastos").textContent = money(gastos);
+
+    const map = {};
+    transactions.filter((t) => t.type === "gasto").forEach((t) => {
+      map[t.category] = (map[t.category] || 0) + t.amount;
+    });
+    const arr = Object.entries(map).map(([id, total]) => ({ ...catById(id), total }));
+    arr.sort((a, b) => b.total - a.total);
+    const maxCat = Math.max(1, ...arr.map((c) => c.total));
+
+    const breakdownWrap = $("breakdownWrap");
+    const breakdown = $("breakdown");
+    if (arr.length === 0) {
+      breakdownWrap.style.display = "none";
+    } else {
+      breakdownWrap.style.display = "block";
+      breakdown.innerHTML = arr.map((c) => `
+        <div class="bar-row">
+          <span class="bar-icon">${c.icon}</span>
+          <span class="bar-label">${c.label}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${(c.total / maxCat) * 100}%; background:${c.color};"></div></div>
+          <span class="bar-amount">${money(c.total)}</span>
+        </div>
+      `).join("");
+    }
+
+    const sorted = [...transactions].sort((a, b) => (a.date < b.date ? 1 : -1));
+    $("emptyMsg").style.display = sorted.length === 0 ? "block" : "none";
+    $("txList").innerHTML = sorted.map((t) => {
+      const c = catById(t.category);
+      return `
+        <div class="tx">
+          <div class="tx-icon" style="background:${c.color}22;">${c.icon}</div>
+          <div class="tx-info">
+            <p class="tx-title">${t.desc || c.label}</p>
+            <p class="tx-sub">${c.label} · ${t.date}</p>
+          </div>
+          <span class="tx-amount ${t.type}">${t.type === "ingreso" ? "+" : "-"}${money(t.amount)}</span>
+          <button class="tx-del" onclick="removeTransaction('${t.id}')">🗑️</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  $("btnGasto").addEventListener("click", () => setType("gasto"));
+  $("btnIngreso").addEventListener("click", () => setType("ingreso"));
+  $("addBtn").addEventListener("click", addTransaction);
+  $("date").value = today();
+
+  populateCategories();
+</script>
+</body>
+</html>
